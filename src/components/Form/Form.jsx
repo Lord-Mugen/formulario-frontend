@@ -44,7 +44,7 @@ const Form = () => {
       const pais = paisValue;
 
       axios
-        .post("formulario-backend.azurewebsites.net/formulario", {
+        .post("formulario-backend.azurewebsites.net", {
           nombre,
           pais,
         })
