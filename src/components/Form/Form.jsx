@@ -9,16 +9,23 @@ const Form = () => {
     event.preventDefault();
 
     const nombreInput = document.querySelector('input[name="nombre"]');
-    if (nombreInput.value === "") {
+    const nombre = nombreInput.value.trim();
+
+    // Expresión regular para validar que solo se ingresen letras y espacios en blanco
+    const regex = /^[a-zA-Z\s]+$/;
+
+    if (nombre === "") {
       toast.error("¡Ingresa un nombre!");
+    } else if (!regex.test(nombre)) {
+      toast.error("¡El nombre solo puede contener letras y espacios!");
     } else {
-      toast.success("Envío exitoso!");
+      toast.success("¡Envío exitoso!");
 
       const nombre = nombreInput.value;
       const pais = document.querySelector('select[name="pais"]').value;
 
       axios
-        .post("http://localhost:3000/formulario", { nombre, pais })
+        .post("http://localhost:3000/formulario", { nombre, pais }) // quiza deba cambiar la direcion cuando lo conecte con azure
         .then((response) => {
           console.log(response.data);
         })
