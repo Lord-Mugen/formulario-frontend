@@ -1,40 +1,13 @@
 import { useEffect, useState } from "react";
+import "./form.css";
+
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./form.css";
 
 const Form = () => {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    const nombreInput = document.querySelector('input[name="nombre"]');
-    const nombre = nombreInput.value.trim();
-
-    // Expresión regular para validar que solo se ingresen letras y espacios en blanco
-    const regex = /^[a-zA-Z\s]+$/;
-
-    if (nombre === "") {
-      toast.error("¡Ingresa un nombre!");
-    } else if (!regex.test(nombre)) {
-      toast.error("¡El nombre solo puede contener letras y espacios!");
-    } else {
-      toast.success("¡Envío exitoso!");
-
-      const nombre = nombreInput.value;
-      const pais = document.querySelector('select[name="pais"]').value;
-
-      axios
-        .post("http://localhost:3000/formulario", { nombre, pais }) // quiza deba cambiar la direcion cuando lo conecte con azure
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  };
-
+  const [nombreValue, setNombreValue] = useState("");
+  const [paisValue, setPaisValue] = useState("");
   const [countries, setCountries] = useState([]);
 
   useEffect(() => {
@@ -49,14 +22,44 @@ const Form = () => {
         setCountries(sortedCountries);
       } catch (error) {
         console.error(error);
+        toast.error("Error al obtener la lista de países");
       }
     };
     fetchData();
   }, []);
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    const regex = /^[a-zA-Z\s]+$/;
+
+    if (nombreValue === "") {
+      toast.error("¡Ingresa un nombre!");
+    } else if (!regex.test(nombreValue)) {
+      toast.error("¡El nombre solo puede contener letras y espacios!");
+    } else {
+      toast.success("¡Envío exitoso!");
+
+      const nombre = nombreValue;
+      const pais = paisValue;
+
+      axios
+        .post("http://localhost:3000/formulario", { nombre, pais })
+        .then((response) => {
+          console.log(response.data);
+          setNombreValue("");
+          setPaisValue("");
+        })
+        .catch((error) => {
+          console.error(error);
+          toast.error("Error al enviar el formulario");
+        });
+    }
+  };
+
   return (
     <>
-      <div className="container">
+      <main className="container">
         <h1 className="c-form__title">Formulario</h1>
         <form className="c-form" onSubmit={handleSubmit}>
           <label className="c-form__label">
@@ -66,13 +69,20 @@ const Form = () => {
               name="nombre"
               placeholder="Escribe tu nombre"
               className="c-form__input"
+              value={nombreValue}
+              onChange={({ target: { value } }) => setNombreValue(value)}
             />
           </label>
           <br />
           <br />
           <label className="c-form__label">
             País:
-            <select name="pais" className="c-form__input">
+            <select
+              name="pais"
+              className="c-form__input"
+              value={paisValue}
+              onChange={({ target: { value } }) => setPaisValue(value)}
+            >
               <option value="">Seleccione un país</option>
               {countries.map((country) => (
                 <option key={country} value={country}>
@@ -87,7 +97,7 @@ const Form = () => {
           </button>
           <ToastContainer />
         </form>
-      </div>
+      </main>
     </>
   );
 };
